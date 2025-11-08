@@ -6,5 +6,22 @@
     "adapter modules",
     "low-resource fine-tuning",
     "hyperparameter optimization"
+  ],
+  "research_study_list": [
+    {
+      "title": "Hint-Aug: Drawing Hints From Foundation Vision Transformers Towards Boosted Few-Shot Parameter-Efficient Tuning"
+    },
+    {
+      "title": "MixPHM: Redundancy-Aware Parameter-Efficient Tuning for Low-Resource Visual Question Answering"
+    },
+    {
+      "title": "Variational Information Bottleneck for Effective Low-Resource Fine-Tuning"
+    },
+    {
+      "title": "LiDAR-in-the-Loop Hyperparameter Optimization"
+    },
+    {
+      "title": "Efficient Hyperparameter Optimization with Adaptive Fidelity Identification"
+    }
   ]
 }
