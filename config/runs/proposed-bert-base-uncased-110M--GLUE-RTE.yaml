@@ -1,0 +1,57 @@
+run_id: proposed-bert-base-uncased-110M--GLUE-RTE
+method: sparse_vibert
+seed: ${seed}
+model:
+  name: bert-base-uncased
+  architecture: Sparse-VIBERT
+  pretrained: true
+  hidden_size: 768
+  num_layers: 12
+  ib: true
+  ib_dim: 128
+  beta: 1.0
+  alpha: 1e-4  # default, tuned by Optuna
+
+dataset:
+  name: glue
+  subset: rte
+  setup: full  # use "32-shot" to switch to few-shot setting
+  max_length: 128
+  shuffle: true
+
+training:
+  num_epochs: 6
+  batch_size: 32      # default, tuned by Optuna
+  learning_rate: 2e-5 # default, tuned by Optuna
+  optimizer: adamw
+  weight_decay: 0.01
+  betas: [0.9, 0.999]
+  warmup_steps: 0
+  gradient_clip: 1.0
+  kl_annealing:
+    type: linear
+    num_steps: 500
+
+evaluation:
+  metric: accuracy
+
+hardware:
+  device: cuda
+  fp16: true
+  max_gpu_memory: 80gb
+
+optuna:
+  n_trials: 30
+  direction: maximize
+  metric_name: accuracy
+  search_space:
+    learning_rate:
+      type: loguniform
+      low: 1e-5
+      high: 5e-5
+    batch_size:
+      type: categorical
+      choices: [16, 32]
+    alpha:
+      type: categorical
+      choices: [1e-5, 1e-4, 5e-4]

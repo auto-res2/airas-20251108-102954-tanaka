@@ -1,0 +1,24 @@
+# config/config.yaml
+# Root Hydra configuration – do NOT edit via code, override from CLI instead.
+
+defaults:
+  - _self_
+  - runs: ${run}
+
+# The variable `run` is provided from CLI: run=<run_id>
+run: null
+
+mode: full     # overridden with mode=trial in CI validation
+results_dir: ./results
+seed: 42
+
+wandb:
+  entity: gengaru617-personal
+  project: 251106-test
+  mode: online   # auto-switched to "disabled" in trial mode
+
+# Prevent Hydra from changing working dir ---------------------------------------------
+hydra:
+  run:
+    dir: .
+  output_subdir: null
