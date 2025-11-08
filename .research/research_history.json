@@ -106,6 +106,11 @@
       }
     }
   ],
+  "reference_research_study_list": [
+    {
+      "title": "Data augmentation generative adversarial networks"
+    }
+  ],
   "research_session": {
     "hypothesis": {
       "open_problems": "VIBERT uses a fixed-width latent bottleneck to suppress task-irrelevant information. All K latent dimensions are treated equally, so: (1) some dimensions still carry redundant signal, and (2) when more data are available, an unnecessarily strong, uniform compression can discard useful information, explaining why VIBERT’s advantage shrinks in medium-resource settings. A minimal way to allow the model to keep only the truly useful portions of z is needed.",
