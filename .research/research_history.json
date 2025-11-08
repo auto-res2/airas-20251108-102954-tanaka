@@ -115,6 +115,10 @@
       "expected_result": "In 32-shot settings S-VIB is expected to outperform VIBERT by ≈1–2 accuracy/F1 points and vanilla fine-tuning by 3–5 points, because redundant dimensions are switched off, giving stronger regularisation.  In full-data settings the gap between S-VIB and vanilla fine-tuning is small (±0.2 pts) and S-VIB matches or slightly exceeds VIBERT, demonstrating that active dimensions can be re-enabled when useful.",
       "expected_conclusion": "A single L1 term on the bottleneck mean lets VIBERT automatically choose how many latent dimensions to use.  This tiny change (three lines of code) improves low-resource performance and avoids hurting medium-resource training, providing a practical, drop-in enhancement for fine-tuning large language models."
     },
-    "iterations": []
+    "iterations": [
+      {
+        "method": "Sparse-VIBERT (S-VIB)\nAdd a simple L1 sparsity regulariser on the mean vector µ(x) of the variational posterior pθ(z|x):\n    L = L_CE + β·KL( q(z|x) || p(z) ) + α · ||µ(x)||₁\nwhere L_CE is the original task loss and β is identical to VIBERT.  α > 0 is a small coefficient (e.g. 1e-4).\nMotivation:\n•  Because each coordinate of µ represents expected information content of that latent dimension, penalising its absolute value encourages many dimensions to collapse toward zero, i.e. to carry no information.  \n•  The model can now adaptively retain only a sparse subset of informative dimensions, reducing redundancy when data are scarce yet automatically freeing capacity when data grow (dimensions that become useful will pay the tiny α cost and remain active).  \nThis keeps the core VIBERT architecture unchanged—only one term is added to the objective."
+      }
+    ]
   }
 }
