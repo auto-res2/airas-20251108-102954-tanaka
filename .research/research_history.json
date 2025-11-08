@@ -117,7 +117,42 @@
     },
     "iterations": [
       {
-        "method": "Sparse-VIBERT (S-VIB)\nAdd a simple L1 sparsity regulariser on the mean vector µ(x) of the variational posterior pθ(z|x):\n    L = L_CE + β·KL( q(z|x) || p(z) ) + α · ||µ(x)||₁\nwhere L_CE is the original task loss and β is identical to VIBERT.  α > 0 is a small coefficient (e.g. 1e-4).\nMotivation:\n•  Because each coordinate of µ represents expected information content of that latent dimension, penalising its absolute value encourages many dimensions to collapse toward zero, i.e. to carry no information.  \n•  The model can now adaptively retain only a sparse subset of informative dimensions, reducing redundancy when data are scarce yet automatically freeing capacity when data grow (dimensions that become useful will pay the tiny α cost and remain active).  \nThis keeps the core VIBERT architecture unchanged—only one term is added to the objective."
+        "method": "Sparse-VIBERT (S-VIB)\nAdd a simple L1 sparsity regulariser on the mean vector µ(x) of the variational posterior pθ(z|x):\n    L = L_CE + β·KL( q(z|x) || p(z) ) + α · ||µ(x)||₁\nwhere L_CE is the original task loss and β is identical to VIBERT.  α > 0 is a small coefficient (e.g. 1e-4).\nMotivation:\n•  Because each coordinate of µ represents expected information content of that latent dimension, penalising its absolute value encourages many dimensions to collapse toward zero, i.e. to carry no information.  \n•  The model can now adaptively retain only a sparse subset of informative dimensions, reducing redundancy when data are scarce yet automatically freeing capacity when data grow (dimensions that become useful will pay the tiny α cost and remain active).  \nThis keeps the core VIBERT architecture unchanged—only one term is added to the objective.",
+        "experimental_design": {
+          "experiment_summary": "We will verify that adding an L1–sparsity term to the Information Bottleneck of VIBERT (Sparse-VIBERT, S-VIB) improves low-resource natural-language understanding.\n\n1. Model: start from the public checkpoint \"bert-base-uncased\" (≈110 M parameters).  Replace the standard classifier with the VIBERT bottleneck (K = 128) and add the α·||µ(x)||₁ penalty inside the training loop.\n2. Data: use the GLUE RTE textual entailment set (2.5 K examples).  Prepare two regimes: a 32-shot subset and the full training split.\n3. Training: sequence length 128, AdamW, 6 epochs, KL linear annealing, β = 1.  Perform grid search over α and learning-rate; keep other VIBERT hyper-parameters fixed for fairness.\n4. Evaluation: report test accuracy averaged over 5 random seeds for each setting.\n5. Comparison: run the original VIBERT implementation (no L1 term) under identical settings.  Superiority of S-VIB in the 32-shot regime will support the hypothesis that sparsifying µ eliminates redundant latent dimensions and yields stronger regularisation.",
+          "evaluation_metrics": [
+            "Accuracy"
+          ],
+          "proposed_method": "Sparse-VIBERT (S-VIB)\nObjective:  L = L_CE + β · KL(q(z|x)||p(z)) + α · ||µ(x)||₁\n• Start from the VIBERT variational bottleneck that inserts a K-dimensional Gaussian latent z between encoder and classifier.\n• Penalise the mean vector µ(x) with an L1 term weighted by α>0.  Because |µ_k| ≈ mutual information carried by dimension k, the penalty encourages many coordinates to collapse towards zero, thus switching off unneeded capacity.\n• As training data grow, dimensions that become useful can reactivate by paying the small α cost, so the model adapts its effective width automatically.\nAlgorithmic steps per batch:\n1. Encode input with BERT to hidden h.\n2. Compute µ(x), σ(x) via two linear heads; sample z∼N(µ, σ²) with re-parameterisation.\n3. Classify using z.\n4. Compute cross-entropy loss, KL term, and the new L1 penalty; back-propagate.\nImplementation (PyTorch):\nloss = ce_loss + beta*kl + alpha*mu.abs().mean()",
+          "comparative_methods": [
+            "VIBERT"
+          ],
+          "models_to_use": [
+            "bert-base-uncased (110M)"
+          ],
+          "datasets_to_use": [
+            "GLUE RTE"
+          ],
+          "hyperparameters_to_search": {
+            "alpha": "1e-5,1e-4,5e-4",
+            "learning_rate": "1e-5-5e-5",
+            "batch_size": "16,32"
+          }
+        },
+        "experiment_runs": [
+          {
+            "run_id": "proposed-bert-base-uncased-110M--GLUE-RTE",
+            "method_name": "proposed",
+            "model_name": "bert-base-uncased (110M)",
+            "dataset_name": "GLUE RTE"
+          },
+          {
+            "run_id": "comparative-1-bert-base-uncased-110M--GLUE-RTE",
+            "method_name": "comparative-1",
+            "model_name": "bert-base-uncased (110M)",
+            "dataset_name": "GLUE RTE"
+          }
+        ]
       }
     ]
   }
